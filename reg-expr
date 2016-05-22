@@ -1,9 +1,64 @@
 import re
 import os
+import glob
+import datetime
+import string
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import TextConverter
+from pdfminer.layout import LAParams
+from pdfminer.pdfpage import PDFPage
+from cStringIO import StringIO
 
-hand = open('mbox-short.txt')
+#Fuction to convert pdf file to text document.
+def convert_pdf_to_txt(path):
+    rsrcmgr = PDFResourceManager()
+    retstr = StringIO()
+    codec = 'utf-8'
+    laparams = LAParams()
+    device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
+    fp = file(path, 'rb')
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    password = ""
+    maxpages = 0
+    caching = True
+    pagenos=set()
 
-for line in hand:
-    line = line.rstrip()
-    if re.search('From:', line):
-        print line
+    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages, password=password,caching=caching, check_extractable=True):
+        interpreter.process_page(page)
+
+    text = retstr.getvalue()
+
+    fp.close()
+    device.close()
+    retstr.close()
+    return text
+
+#consider each text file in directory and print start, finish and suspension times.
+for file in glob.glob('*.txt'):
+    times = []
+    with open(file) as f:
+        for line in f:
+            line = line.rstrip()
+            #looks for lines that start with a capital C and include a time.
+            if re.search('^C[a-z].+[0-9][0-9]:[0-9][0-9]', line):
+                times.append(line)
+                #print line
+            #looks for lines that start with a capital P and include a time.
+            if re.search('^Proceedings.+[0-9][0-9]:[0-9][0-9]', line):
+                times.append(line)
+                #print line
+
+        #extract times from lines and place into array.
+        times_clean = []
+        for line in times:
+            temp = line.split()
+            for i in temp:
+                if re.search('^[0-9].+?', i):
+                    times_clean.append(i.translate(string.maketrans("",""), string.punctuation))
+
+        #calculate durations
+        start = times_clean[0]
+        end = times_clean[-1]
+        start_time = datetime.datetime(year=2012, month=2, day=25, hour=int(start[:2]), minute=int(start[-2:]))
+        end_time = datetime.datetime(year=2012, month=2, day=25, hour=int(end[:2]), minute=int(end[-2:]))
+        print 'Hearing ran for {}'.format(str(end_time-start_time))

@@ -1,0 +1,27 @@
+"""
+Program to count the number of pages in a collection of multiple pdf files
+Accepts a directory of pdf files.
+Returns a summary list with the number of file entered, and the total number
+of pages.
+"""
+import re
+import os
+import glob
+from PyPDF2 import PdfFileReader
+
+total_pages = 0
+total_read = 0
+unsuccessful = 0
+
+#create loop to cycle through each pdf in the folder and count pages
+for file in glob.glob('*.pdf'):
+    try:
+        pdf = PdfFileReader(file)
+        total_pages += pdf.getNumPages()
+        total_read += 1
+    except Exception as e:
+        unsuccessful += 1
+        raise
+
+#report to user the total page number and the number of files successfully read.
+print 'Total pages: {0} /n Documents read: {1} /n Errors: {2}'.format(total_pages, total_read, unsuccessful)
