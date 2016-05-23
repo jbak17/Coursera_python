@@ -7,3 +7,14 @@ for line in hand:
     line = line.rstrip()
     if re.search('From:', line):
         print line
+
+
+'''
+Go here for instructions: https://automatetheboringstuff.com/chapter13/
+1) Import .docx file and convert to txt
+2) Use regular expressions to get date, start and finish times
+3) Calculate duration of hearing
+4) Report the duration and the date of the hearing
+5) Add functionality so multiple files can be passed in at once
+
+'''
