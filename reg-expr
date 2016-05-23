@@ -17,4 +17,6 @@ Go here for instructions: https://automatetheboringstuff.com/chapter13/
 4) Report the duration and the date of the hearing
 5) Add functionality so multiple files can be passed in at once
 
+For bash: 
+find pwd -name "*.docx" -ok regexp.py {} ';'
 '''
